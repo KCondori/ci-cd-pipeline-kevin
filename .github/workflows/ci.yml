@@ -44,7 +44,14 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: docs
+           name: docs-${{ matrix.node-version }}
+           path: docs
+
+      - name: Descargar todos los artifacts de docs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: docs-*
+          merge-multiple: true
           path: docs
 
   deploy:
