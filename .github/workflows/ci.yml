@@ -25,7 +25,7 @@ jobs:
         run: rm -rf node_modules package-lock.json
 
       - name: Instalar dependencias
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Ejecutar pruebas
         run: npm test
