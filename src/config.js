@@ -1,3 +1,4 @@
+module.exports = {};
 const environments = {
   development: { port: 3000 },
   testing: { port: 4000 },

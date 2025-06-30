@@ -1,12 +1,10 @@
 const request = require('supertest');
 const express = require('express');
 
-// Funciones de cálculo
 const suma = (a, b) => a + b;
 const resta = (a, b) => a - b;
 const multiplica = (a, b) => a * b;
 
-// App simulada para testear endpoints
 const app = express();
 app.get('/suma', (req, res) => {
   const { a, b } = req.query;

@@ -1,6 +1,14 @@
 const request = require('supertest');
 const express = require('express');
 const app = express();
+const app = require('../src/app');
+
+describe('/', () => {
+  test('GET / responds 200', async () => {
+    const res = await request(app).get('/');
+    expect(res.statusCode).toBe(200);
+  });
+});
 
 app.get('/suma', (req, res) => {
   const { a, b } = req.query;

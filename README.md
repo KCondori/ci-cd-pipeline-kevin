@@ -1,4 +1,3 @@
-"# ci-cd-pipeline-kevin" 
 # CI/CD Pipeline – Kevin
 
 ## 🧰 Instalación

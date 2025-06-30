@@ -4,7 +4,6 @@ const config = require('../src/config');
 
 const app = express();
 
-// Simula todo el servidor completo
 app.get('/suma', (req, res) => {
   const { a, b } = req.query;
   if (a === undefined || b === undefined) return res.status(400).send('Faltan parámetros "a" o "b"');
@@ -39,12 +38,11 @@ describe('🤖 Test de Integración - Aplicación Completa', () => {
   });
 
   test('interacción: sumando un resultado previo encadenado', async () => {
-    // Primero suma
+    
     const resSum = await request(app).get('/suma?a=10&b=15');
     expect(resSum.statusCode).toBe(200);
     const sumResult = Number(resSum.text.split(': ')[1]);
 
-    // Ahora multiplícalo
     const resMul = await request(app).get(`/multiplica?a=${sumResult}&b=2`);
     expect(resMul.statusCode).toBe(200);
     expect(resMul.text).toBe(`Resultado: ${sumResult * 2}`);
