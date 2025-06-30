@@ -1,0 +1,25 @@
+{
+  "name": "practica2",
+  "version": "1.0.0",
+  "description": "\"# ci-cd-pipeline-kevin\" \r \"# ci-cd-pipeline-kevin\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "jest": "^30.0.3",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.1"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  }
+}

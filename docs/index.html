@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estado del Build - CI/CD</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #2c3e50, #4ca1af);
+      color: #ecf0f1;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    .status {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+    .success {
+      color: #2ecc71;
+    }
+    .failure {
+      color: #e74c3c;
+    }
+    h1 {
+      margin: 0;
+      font-weight: 700;
+    }
+    p {
+      margin: 0.2rem 0 1.5rem 0;
+      font-size: 1.25rem;
+    }
+    .info {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem 2rem;
+      border-radius: 12px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+    }
+    a.button {
+      display: inline-block;
+      margin: 0.5rem 1rem;
+      padding: 0.6rem 1.2rem;
+      color: #ecf0f1;
+      background-color: #2980b9;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+    }
+    a.button:hover {
+      background-color: #3498db;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      color: #bdc3c7;
+    }
+  </style>
+</head>
+<body>
+  <div class="status success" id="build-status">✔️</div>
+  <h1>Build Completado con Éxito</h1>
+  <div class="info">
+    <p><strong>Fecha y hora:</strong> <span id="build-time">--</span></p>
+    <p><strong>Branch:</strong> <span id="branch-name">main</span></p>
+    <p><strong>Commit:</strong> <a href="#" target="_blank" id="commit-link">--</a></p>
+    <div>
+      <a href="https://github.com/KCondori/ci-cd-pipeline-kevin" target="_blank" class="button">Repositorio</a>
+      <a href="#" target="_blank" class="button" id="btn-commit">Ver Commit</a>
+    </div>
+  </div>
+
+  <footer>
+    Pipeline CI/CD - Despliegue automático
+  </footer>
+
+  <script>
+   
+    document.getElementById('build-time').textContent = new Date().toLocaleString();
+
+    const branch = "main";
+    const commitSha = "abcdef1234567890";
+    const repoUrl = "https://github.com/KCondori/ci-cd-pipeline-kevin";
+
+    document.getElementById('branch-name').textContent = branch;
+
+    const commitLink = `${repoUrl}/commit/${commitSha}`;
+    document.getElementById('commit-link').href = commitLink;
+    document.getElementById('commit-link').textContent = commitSha.substring(0,7);
+    document.getElementById('btn-commit').href = commitLink;
+  
+    const buildStatus = 'success'; // 'failure'
+    const statusElem = document.getElementById('build-status');
+    const titleElem = document.querySelector('h1');
+
+    if(buildStatus === 'failure') {
+      statusElem.textContent = '❌';
+      statusElem.classList.remove('success');
+      statusElem.classList.add('failure');
+      titleElem.textContent = 'Build Fallido';
+    }
+    
+  </script>
+</body>
+</html>
