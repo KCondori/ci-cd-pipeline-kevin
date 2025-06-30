@@ -3,6 +3,13 @@
   "version": "1.0.0",
   "description": "Aplicación de ejemplo para CI/CD con Heroku y Slack",
   "main": "index.js",
+"scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "jest",
+    "lint": "eslint .",
+    "build": "echo \"No build step defined\""
+  },
 
   "keywords": ["ci-cd", "heroku", "slack", "nodejs"],
   "author": "Kevin Condori <kevin.condori@example.com>",
