@@ -15,7 +15,6 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
     steps:
       - uses: actions/checkout@v3
-
       - name: Cache npm dependencies
         uses: actions/cache@v3
         with:
@@ -23,29 +22,23 @@ jobs:
           key: ${{ runner.os }}-node-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ matrix.node-version }}-
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-
       - name: Install dependencies
         run: npm ci
-
       - name: Run tests
         run: npm test
-
       - name: Build app
         run: |
           mkdir -p docs
           echo "<h1>Build $(date)</h1>" > docs/index.html
-
-      - name: Reemplazar valores dinámicos en index.html
+      - name: Insert dynamic values in index.html
         run: |
           sed -i "s|const branch = \".*\";|const branch = \"${GITHUB_REF_NAME}\";|" docs/index.html
           sed -i "s|const commitSha = \".*\";|const commitSha = \"${GITHUB_SHA}\";|" docs/index.html
           sed -i "s|const repoUrl = \".*\";|const repoUrl = \"https://github.com/${GITHUB_REPOSITORY}\";|" docs/index.html
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -53,22 +46,19 @@ jobs:
           path: docs
 
   deploy:
-    name: Deploy to Heroku ✅
+    name: Deploy to Heroku
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && success()
     steps:
       - uses: actions/checkout@v3
-
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: docs-artifact
           path: docs
-
       - name: Install Heroku CLI
         run: curl https://cli-assets.heroku.com/install.sh | sh
-
       - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3
         with:
@@ -77,59 +67,45 @@ jobs:
           heroku_email: ${{ secrets.HEROKU_EMAIL }}
           usedocker: false
 
-  notify-success:
-    if: success()
-    runs-on: ubuntu-latest
+  notify:
     needs: deploy
+    runs-on: ubuntu-latest
     steps:
-      - name: Notify Slack of Success
+      - name: Notify Slack
         uses: 8398a7/action-slack@v3
+        if: always()
         with:
-          status: success
+          status: ${{ job.status }}
           custom_payload: |
             {
-              "text": ":tada: *Pipeline exitoso!* :rocket:\nRepositorio: *${{ github.repository }}*\nCommit: <https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\nBranch: ${{ github.ref_name }}\nDespliegue: *completado correctamente*."
+              "text": "{{#success}}:tada: *Pipeline exitoso!*{{/success}}{{#failure}}:x: *Pipeline fallido!*{{/failure}}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-  notify-failure:
+  create-issue:
     if: failure()
-    runs-on: ubuntu-latest
     needs: deploy
+    runs-on: ubuntu-latest
     steps:
-      - name: Notify Slack of Failure
-        uses: 8398a7/action-slack@v3
-        with:
-          status: failure
-          custom_payload: |
-            {
-              "text": ":x: *Pipeline fallido!* :warning:\nRepositorio: *${{ github.repository }}*\nCommit: <https://github.com/${{ github.repository }}/commit/${{ github.sha }}|${{ github.sha }}>\nBranch: ${{ github.ref_name }}\nPor favor, revisa los logs para más detalles."
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      - name: Create issue content
+        run: |
+          cat <<EOF > my-issue.md
+          ## 🚨 Deployment failed on main branch
 
-  create-issue-on-failure:
-    if: failure()
-    runs-on: ubuntu-latest
-    needs: deploy
-    steps:
-      - name: Create GitHub Issue on Deployment Failure
-        uses: peter-evans/create-issue@v4
+          **Descripción:** La etapa de *despliegue* falló.
+          - **Repositorio:** ${{ github.repository }}
+          - **Commit:** ${{ github.sha }}
+          - **Branch:** ${{ github.ref_name }}
+
+          _Esta issue fue creada automáticamente por CI/CD._
+          EOF
+      - name: Create issue from file
+        uses: peter-evans/create-issue-from-file@v5
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           title: "🚨 Deployment failed on main branch"
-          body: |
-            **Descripción:**  
-            La etapa de *despliegue* en el pipeline falló.
-
-            **Repositorio:** ${{ github.repository }}  
-            **Commit:** ${{ github.sha }}  
-            **Branch:** ${{ github.ref_name }}  
-
-            Por favor, revisa los logs para investigar el problema.
-
-            ---
-            _Esta issue fue creada automáticamente por el workflow de CI/CD._
-          labels: bug, deployment-failure
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          content-filepath: my-issue.md
+          labels: |
+            bug
+            deployment-failure
